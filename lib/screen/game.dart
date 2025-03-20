@@ -74,10 +74,11 @@ class _GameScreenState extends State<GameScreen> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4, // 4 kartu per baris
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 300, // Maksimal lebar tiap kartu (80px)
+            crossAxisSpacing: 4, // Jarak antar kartu
+            mainAxisSpacing: 4,
+            childAspectRatio: 1, // Pasti kotak
           ),
           itemCount: cards.length,
           itemBuilder: (context, index) {
@@ -87,9 +88,11 @@ class _GameScreenState extends State<GameScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
-                    image: AssetImage(cards[index].isFlipped
-                        ? cards[index].imagePath
-                        : 'assets/images/0.jpg'),
+                    image: AssetImage(
+                      cards[index].isFlipped
+                          ? cards[index].imagePath
+                          : 'assets/0.jpg',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -101,5 +104,3 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 }
-
-
