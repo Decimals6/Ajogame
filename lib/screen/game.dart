@@ -37,9 +37,9 @@ class _GameScreenState extends State<GameScreen> {
   bool win = false;
   int cardFinished = 0;
 
-  int _countdown = 5;
+  int _countdown = 30;
   bool isActive = true;
-  int _time = 5;
+  int _time = 30;
   late Timer _timer;
 
   @override
@@ -117,6 +117,7 @@ class _GameScreenState extends State<GameScreen> {
     _backsound.play(AssetSource('ThemeSong.mp3'), volume: 0.5);
     cards = [];
     cards = generateCards();
+    cardFinished = 0;
     _countdown = _time;
     startTimer();
   }
