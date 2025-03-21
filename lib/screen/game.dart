@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
 import 'dart:async';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 // void main() {
 //   runApp(Ajogame());
@@ -25,6 +26,10 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  final AudioPlayer _backsound = AudioPlayer();
+  final AudioPlayer _losesound = AudioPlayer();
+  final AudioPlayer _winsound = AudioPlayer();
+
   List<GameCard> cards = [];
   GameCard? firstCard;
   GameCard? secondCard;
@@ -32,9 +37,9 @@ class _GameScreenState extends State<GameScreen> {
   bool win = false;
   int cardFinished = 0;
 
-  int _countdown = 20;
+  int _countdown = 5;
   bool isActive = true;
-  int _time = 20;
+  int _time = 5;
   late Timer _timer;
 
   @override
@@ -42,6 +47,7 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     cards = generateCards();
     startTimer();
+    _playBackgroundMusic();
   }
 
   void startTimer() {
@@ -57,8 +63,26 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
+  void _playBackgroundMusic() async {
+    await _backsound.play(AssetSource('ThemeSong.mp3'), volume: 0.5);
+  }
+
+  void _playWinMusic() async {
+    await _winsound.stop();
+    await _winsound.play(AssetSource('Win.mp3'), volume: 0.5);
+  }
+
+  void _playLoseMusic() async {
+    await _losesound.stop();
+    await _losesound.play(AssetSource('Win.mp3'), volume: 0.5);
+  }
+
   void endgame() {
+    
     _timer.cancel();
+    _backsound.stop();
+    _backsound.dispose();
+
     showDialog<String>(
       context: context,
       builder:
@@ -76,6 +100,11 @@ class _GameScreenState extends State<GameScreen> {
             ],
           ),
     );
+    if (win) {
+      _playWinMusic();
+    } else {
+      _playLoseMusic();
+    }
   }
 
   void retry() {
@@ -83,6 +112,7 @@ class _GameScreenState extends State<GameScreen> {
     cards = generateCards();
     _countdown = _time;
     startTimer();
+    _playBackgroundMusic();
   }
 
   void onCardTap(int index) {
