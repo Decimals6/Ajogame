@@ -64,21 +64,25 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _playBackgroundMusic() async {
+    await _backsound.stop();
     await _backsound.play(AssetSource('ThemeSong.mp3'), volume: 0.5);
   }
 
   void _playWinMusic() async {
     await _winsound.stop();
-    await _winsound.play(AssetSource('Win.mp3'), volume: 0.5);
+    await _winsound.play(AssetSource('WinTest.mp3'), volume: 0.5);
   }
 
   void _playLoseMusic() async {
-    await _losesound.stop();
-    await _losesound.play(AssetSource('Win.mp3'), volume: 0.5);
+    try {
+      await _losesound.stop();
+      await _losesound.play(AssetSource('LoseTest.mp3'), volume: 0.5);
+    } catch (e) {
+      print("Error: $e"); // Lihat error yang lebih spesifik
+    }
   }
 
   void endgame() {
-    
     _timer.cancel();
     _backsound.stop();
     _backsound.dispose();
@@ -107,12 +111,14 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  void retry() {
+  void retry() async {
+    _losesound.stop();
+    _winsound.stop();
+    _backsound.play(AssetSource('ThemeSong.mp3'), volume: 0.5);
     cards = [];
     cards = generateCards();
     _countdown = _time;
     startTimer();
-    _playBackgroundMusic();
   }
 
   void onCardTap(int index) {
