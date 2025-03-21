@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
+import 'dart:async';
+import 'package:percent_indicator/percent_indicator.dart';
 
 // void main() {
 //   runApp(Ajogame());
@@ -27,11 +29,60 @@ class _GameScreenState extends State<GameScreen> {
   GameCard? firstCard;
   GameCard? secondCard;
   bool isProcessing = false;
+  bool win = false;
+  int cardFinished = 0;
+
+  int _countdown = 20;
+  bool isActive = true;
+  int _time = 20;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     cards = generateCards();
+    startTimer();
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      setState(() {
+        if (_countdown == 0) {
+          win = false;
+          endgame();
+        } else {
+          _countdown--;
+        }
+      });
+    });
+  }
+
+  void endgame() {
+    _timer.cancel();
+    showDialog<String>(
+      context: context,
+      builder:
+          (BuildContext context) => AlertDialog(
+            title: Text('Quiz'),
+            content: Text(win ? "Congrats You Win" : "You Lose"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  retry();
+                },
+                child: const Text('Try Again'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void retry() {
+    cards = [];
+    cards = generateCards();
+    _countdown = _time;
+    startTimer();
   }
 
   void onCardTap(int index) {
@@ -52,6 +103,11 @@ class _GameScreenState extends State<GameScreen> {
         firstCard = null;
         secondCard = null;
         isProcessing = false;
+        cardFinished++;
+        if (cardFinished == cards.length / 2) {
+          win = true;
+          endgame();
+        }
       } else {
         // Jika tidak cocok, balik lagi setelah delay
         Future.delayed(Duration(seconds: 1), () {
@@ -73,32 +129,46 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(title: Text("Ajogame - Match the Cards")),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 300, // Maksimal lebar tiap kartu (80px)
-            crossAxisSpacing: 4, // Jarak antar kartu
-            mainAxisSpacing: 4,
-            childAspectRatio: 1, // Pasti kotak
-          ),
-          itemCount: cards.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => onCardTap(index),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: AssetImage(
-                      cards[index].isFlipped
-                          ? cards[index].imagePath
-                          : 'assets/0.jpg',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
+        child: Column(
+          children: <Widget>[
+            LinearPercentIndicator(
+              percent: _countdown / _time,
+              progressColor: Colors.green,
+              lineHeight: 20,
+            ),
+            Text("time left: $_countdown"),
+            SizedBox(height: 10), // Tambahkan sedikit jarak
+            Expanded(
+              // Tambahkan Expanded agar GridView bisa mengisi sisa ruang
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 80, // Ukuran maksimal tiap kartu
+                  crossAxisSpacing: 4,
+                  mainAxisSpacing: 4,
+                  childAspectRatio: 1, // Biar tetap kotak
                 ),
+                itemCount: cards.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () => onCardTap(index),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: AssetImage(
+                            cards[index].isFlipped
+                                ? cards[index].imagePath
+                                : 'assets/0.jpg',
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
