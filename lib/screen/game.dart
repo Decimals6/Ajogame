@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
 import 'dart:async';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:ajogame/class/level.dart';
 
 // void main() {
 //   runApp(Ajogame());
@@ -31,23 +34,64 @@ class _GameScreenState extends State<GameScreen> {
   final AudioPlayer _winsound = AudioPlayer();
 
   List<GameCard> cards = [];
+
+  Level? _selectedLevel;
+
   GameCard? firstCard;
   GameCard? secondCard;
   bool isProcessing = false;
   bool win = false;
   int cardFinished = 0;
 
-  int _countdown = 30;
+  int _countdown = 0;
   bool isActive = true;
-  int _time = 30;
+  int _time = 0;
   late Timer _timer;
 
   @override
-  void initState() {
-    super.initState();
-    cards = generateCards();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      chooseLevel();
+    });
+  }
+
+  void startGame() {
+    _countdown = _selectedLevel!.time;
+    _time = _selectedLevel!.time;
+    cards = [];
+    cards = generateCards(_selectedLevel!);
     startTimer();
     _playBackgroundMusic();
+  }
+
+  void chooseLevel() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Biar nggak bisa ditutup sebelum pilih level
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Pilih Level"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children:
+                levels.map((level) {
+                  return ListTile(
+                    title: Text("Level ${level.id}"),
+                    subtitle: Text("Waktu: ${level.time} detik"),
+                    onTap: () {
+                      setState(() {
+                        _selectedLevel = level;
+                      });
+                      Navigator.pop(context); // Tutup popup
+                      startGame(); // Panggil fungsi buat mulai game
+                    },
+                  );
+                }).toList(),
+          ),
+        );
+      },
+    );
   }
 
   void startTimer() {
@@ -89,11 +133,19 @@ class _GameScreenState extends State<GameScreen> {
 
     showDialog<String>(
       context: context,
+      barrierDismissible: false,
       builder:
           (BuildContext context) => AlertDialog(
             title: Text('Quiz'),
             content: Text(win ? "Congrats You Win" : "You Lose"),
             actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  chooseLevel();
+                },
+                child: const Text('change level'),
+              ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -114,12 +166,8 @@ class _GameScreenState extends State<GameScreen> {
   void retry() async {
     _losesound.stop();
     _winsound.stop();
-    _backsound.play(AssetSource('ThemeSong.mp3'), volume: 0.5);
-    cards = [];
-    cards = generateCards();
     cardFinished = 0;
-    _countdown = _time;
-    startTimer();
+    startGame();
   }
 
   void onCardTap(int index) {
@@ -175,34 +223,40 @@ class _GameScreenState extends State<GameScreen> {
             ),
             Text("time left: $_countdown"),
             SizedBox(height: 10), // Tambahkan sedikit jarak
-            Expanded(
-              // Tambahkan Expanded agar GridView bisa mengisi sisa ruang
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 80, // Ukuran maksimal tiap kartu
-                  crossAxisSpacing: 4,
-                  mainAxisSpacing: 4,
-                  childAspectRatio: 1, // Biar tetap kotak
-                ),
-                itemCount: cards.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () => onCardTap(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: AssetImage(
-                            cards[index].isFlipped
-                                ? cards[index].imagePath
-                                : 'assets/0.jpg',
+            Center(
+              child: SizedBox(
+                width:
+                    MediaQuery.of(context).size.width * 0.8, // Lebar GridView (80% layar)
+                height:
+                    MediaQuery.of(context).size.height * 0.6, // Tinggi GridView (50% layar)
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent:
+                        ((MediaQuery.of(context).size.width * 0.8) / _selectedLevel!.column), 
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                    childAspectRatio: 1, // Biar tetap kotak
+                  ),
+                  itemCount: cards.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () => onCardTap(index),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: DecorationImage(
+                            image: AssetImage(
+                              cards[index].isFlipped
+                                  ? cards[index].imagePath
+                                  : 'assets/0.jpg',
+                            ),
+                            fit: BoxFit.cover,
                           ),
-                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ],
