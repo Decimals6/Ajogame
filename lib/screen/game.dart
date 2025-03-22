@@ -1,25 +1,12 @@
 import 'dart:ui';
 
+import 'package:ajogame/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
 import 'dart:async';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:ajogame/class/level.dart';
-
-// void main() {
-//   runApp(Ajogame());
-// }
-
-// class Ajogame extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: GameScreen(),
-//     );
-//   }
-// }
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -142,6 +129,16 @@ class _GameScreenState extends State<GameScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                },
+                child: const Text('Back to Menu'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
                   chooseLevel();
                 },
                 child: const Text('change level'),
@@ -211,7 +208,6 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Ajogame - Match the Cards")),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -226,13 +222,16 @@ class _GameScreenState extends State<GameScreen> {
             Center(
               child: SizedBox(
                 width:
-                    MediaQuery.of(context).size.width * 0.8, // Lebar GridView (80% layar)
+                    MediaQuery.of(context).size.width *
+                    0.8, // Lebar GridView (80% layar)
                 height:
-                    MediaQuery.of(context).size.height * 0.6, // Tinggi GridView (50% layar)
+                    MediaQuery.of(context).size.height *
+                    0.6, // Tinggi GridView (50% layar)
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent:
-                        ((MediaQuery.of(context).size.width * 0.8) / _selectedLevel!.column), 
+                        ((MediaQuery.of(context).size.width * 0.8) /
+                            _selectedLevel!.column),
                     crossAxisSpacing: 4,
                     mainAxisSpacing: 4,
                     childAspectRatio: 1, // Biar tetap kotak
