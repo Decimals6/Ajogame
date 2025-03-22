@@ -13,7 +13,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String? _username;
-  Home? drawer;
   Level _selectedLevel = levels[0];
 
   @override

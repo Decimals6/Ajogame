@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
   bool isActive = true;
   int _time = 0;
   late Timer _timer;
+  int _score = 0;
 
   @override
   void didChangeDependencies() {
@@ -112,8 +113,9 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void endgame() {
-    cardFinished = 0;
     _timer.cancel();
+    _score = cardFinished*_countdown;
+    cardFinished = 0;
     _backsound.stop();
     _backsound.dispose();
 
@@ -123,15 +125,12 @@ class _GameScreenState extends State<GameScreen> {
       builder:
           (BuildContext context) => AlertDialog(
             title: Text('Quiz'),
-            content: Text(win ? "Congrats You Win" : "You Lose"),
+            content: Text(win ? "Congrats You Win \nYour Score: $_score" : "You Lose \nYour Score: $_score"),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => Home()),
-                  );
+                  
                 },
                 child: const Text('Back to Menu'),
               ),
