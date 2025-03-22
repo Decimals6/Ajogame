@@ -1,3 +1,4 @@
+import 'package:ajogame/screen/leaderboard.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ajogame/screen/home.dart';
@@ -36,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String? _username;
   int _currentIndex = 0;
-  final List<Widget> _screens = [Home(), const GameScreen()];
+  final List<Widget> _screens = [Home(),];
 
   @override
   void initState() {
@@ -84,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => GameScreen()),
+                MaterialPageRoute(builder: (context) => Leaderboard()),
               );
             },
           ),

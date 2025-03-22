@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:ajogame/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
@@ -9,7 +8,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:ajogame/class/level.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final Level _selectedLevel;
+  const GameScreen(this._selectedLevel, {super.key,});
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -21,8 +21,6 @@ class _GameScreenState extends State<GameScreen> {
   final AudioPlayer _winsound = AudioPlayer();
 
   List<GameCard> cards = [];
-
-  Level? _selectedLevel;
 
   GameCard? firstCard;
   GameCard? secondCard;
@@ -39,47 +37,47 @@ class _GameScreenState extends State<GameScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      chooseLevel();
+      startGame();
     });
   }
 
   void startGame() {
-    _countdown = _selectedLevel!.time;
-    _time = _selectedLevel!.time;
+    _countdown = widget._selectedLevel.time;
+    _time = widget._selectedLevel.time;
     cards = [];
-    cards = generateCards(_selectedLevel!);
+    cards = generateCards(widget._selectedLevel);
     startTimer();
     _playBackgroundMusic();
   }
 
-  void chooseLevel() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Biar nggak bisa ditutup sebelum pilih level
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Pilih Level"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children:
-                levels.map((level) {
-                  return ListTile(
-                    title: Text("Level ${level.id}"),
-                    subtitle: Text("Waktu: ${level.time} detik"),
-                    onTap: () {
-                      setState(() {
-                        _selectedLevel = level;
-                      });
-                      Navigator.pop(context); // Tutup popup
-                      startGame(); // Panggil fungsi buat mulai game
-                    },
-                  );
-                }).toList(),
-          ),
-        );
-      },
-    );
-  }
+  // void chooseLevel() {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false, // Biar nggak bisa ditutup sebelum pilih level
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text("Pilih Level"),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children:
+  //               levels.map((level) {
+  //                 return ListTile(
+  //                   title: Text("Level ${level.id}"),
+  //                   subtitle: Text("Waktu: ${level.time} detik"),
+  //                   onTap: () {
+  //                     setState(() {
+  //                       widget._selectedLevel = level;
+  //                     });
+  //                     Navigator.pop(context); // Tutup popup
+  //                     startGame(); // Panggil fungsi buat mulai game
+  //                   },
+  //                 );
+  //               }).toList(),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   void startTimer() {
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
@@ -114,6 +112,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void endgame() {
+    cardFinished = 0;
     _timer.cancel();
     _backsound.stop();
     _backsound.dispose();
@@ -136,13 +135,13 @@ class _GameScreenState extends State<GameScreen> {
                 },
                 child: const Text('Back to Menu'),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  chooseLevel();
-                },
-                child: const Text('change level'),
-              ),
+              // TextButton(
+              //   onPressed: () {
+              //     Navigator.pop(context);
+              //     chooseLevel();
+              //   },
+              //   child: const Text('change level'),
+              // ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -163,7 +162,6 @@ class _GameScreenState extends State<GameScreen> {
   void retry() async {
     _losesound.stop();
     _winsound.stop();
-    cardFinished = 0;
     startGame();
   }
 
@@ -231,7 +229,7 @@ class _GameScreenState extends State<GameScreen> {
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent:
                         ((MediaQuery.of(context).size.width * 0.8) /
-                            _selectedLevel!.column),
+                            widget._selectedLevel.column),
                     crossAxisSpacing: 4,
                     mainAxisSpacing: 4,
                     childAspectRatio: 1, // Biar tetap kotak
