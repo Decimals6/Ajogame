@@ -7,19 +7,11 @@ class Leaderboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Leaderboard')),
       body: Center(
         child: Column(
           children: [
             Text('Leaderbord'),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Home()),
-                );
-              },
-              child: Text("Back to Home"),
-            ),
           ],
         ),
       ),

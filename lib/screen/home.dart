@@ -28,39 +28,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Drawer myDrawer() {
-    return Drawer(
-      elevation: 16.0,
-      child: Column(
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: Text(_username!),
-            accountEmail: Text("xyz@gmail.com"),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage("https://i.pravatar.cc/150"),
-            ),
-          ),
-          ListTile(
-            title: const Text("Leaderboard"),
-            leading: const Icon(Icons.person),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => Leaderboard()),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text("Logout"),
-            leading: const Icon(Icons.person),
-            onTap: () {
-              _logout();
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -76,8 +44,6 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Home")),
-      drawer: myDrawer(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -15,6 +15,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+  			   'leaderboard': (context) =>const Leaderboard(),
+   			},
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -57,11 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   title: Text(widget.title),
-      // ),
-      // drawer: myDrawer(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      drawer: myDrawer(),
       body: _username == null ? const Login() : _screens[_currentIndex],
     );
   }
@@ -83,10 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
             title: const Text("Leaderboard"),
             leading: const Icon(Icons.person),
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => Leaderboard()),
-              );
+              Navigator.pushNamed(context, 'leaderboard');
             },
           ),
           ListTile(

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:ajogame/main.dart';
 import 'package:ajogame/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
@@ -9,7 +10,7 @@ import 'package:ajogame/class/level.dart';
 
 class GameScreen extends StatefulWidget {
   final Level _selectedLevel;
-  const GameScreen(this._selectedLevel, {super.key,});
+  const GameScreen(this._selectedLevel, {super.key});
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -95,7 +96,7 @@ class _GameScreenState extends State<GameScreen> {
 
   void _playBackgroundMusic() async {
     await _backsound.stop();
-    await _backsound.play(AssetSource('ThemeSong.mp3'), volume: 0.5);
+    await _backsound.play(AssetSource(widget._selectedLevel.id.toString()+'.mp3'), volume: 0.5);
   }
 
   void _playWinMusic() async {
@@ -114,7 +115,7 @@ class _GameScreenState extends State<GameScreen> {
 
   void endgame() {
     _timer.cancel();
-    _score = cardFinished*_countdown;
+    _score = cardFinished * _countdown;
     cardFinished = 0;
     _backsound.stop();
     _backsound.dispose();
@@ -125,12 +126,19 @@ class _GameScreenState extends State<GameScreen> {
       builder:
           (BuildContext context) => AlertDialog(
             title: Text('Quiz'),
-            content: Text(win ? "Congrats You Win \nYour Score: $_score" : "You Lose \nYour Score: $_score"),
+            content: Text(
+              win
+                  ? "Congrats You Win \nYour Score: $_score"
+                  : "You Lose \nYour Score: $_score",
+            ),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyHomePage(title: "AJOGAME - Match The Card",)),
+                  );
                 },
                 child: const Text('Back to Menu'),
               ),
