@@ -38,22 +38,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _username = "";
+  String? _username;
   int _currentIndex = 0;
   final List<Widget> _screens = [Home(),];
 
   @override
   void initState() {
-    super.initState();
     _checkLoginStatus();
+    super.initState();
   }
 
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username == prefs.getString(
+      _username = prefs.getString(
         'username',
-      ); // Ambil username dari shared prefs
+      );
+      if (_username == null) {
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+      } // Ambil username dari shared prefs
     });
   }
 
@@ -65,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       drawer: myDrawer(),
-      body: _username == "" ? const Login() : _screens[_currentIndex],
+      body: (_username == null || _username!.isEmpty) ? const Login() : _screens[_currentIndex],
     );
   }
 
@@ -76,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         children: <Widget>[
           UserAccountsDrawerHeader(
-            accountName: Text(_username),
+            accountName: Text(_username ?? ''),
             accountEmail: Text("xyz@gmail.com"),
             currentAccountPicture: CircleAvatar(
               backgroundImage: NetworkImage("https://i.pravatar.cc/150"),
