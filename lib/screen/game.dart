@@ -96,7 +96,10 @@ class _GameScreenState extends State<GameScreen> {
 
   void _playBackgroundMusic() async {
     await _backsound.stop();
-    await _backsound.play(AssetSource(widget._selectedLevel.id.toString()+'.mp3'), volume: 0.5);
+    await _backsound.play(
+      AssetSource(widget._selectedLevel.id.toString() + '.mp3'),
+      volume: 0.5,
+    );
   }
 
   void _playWinMusic() async {
@@ -137,7 +140,11 @@ class _GameScreenState extends State<GameScreen> {
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => MyHomePage(title: "AJOGAME - Match The Card",)),
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                              MyHomePage(title: "AJOGAME - Match The Card"),
+                    ),
                   );
                 },
                 child: const Text('Back to Menu'),
@@ -227,15 +234,23 @@ class _GameScreenState extends State<GameScreen> {
             Center(
               child: SizedBox(
                 width:
-                    MediaQuery.of(context).size.width *
-                    0.8, // Lebar GridView (80% layar)
+                    MediaQuery.of(context).size.width > 800
+                        ? (widget._selectedLevel.id == 1
+                            ? MediaQuery.of(context).size.width * 0.4
+                            : MediaQuery.of(context).size.width * 0.7)
+                        : MediaQuery.of(context).size.width *
+                            0.8, // Lebar GridView (80% layar)
                 height:
                     MediaQuery.of(context).size.height *
-                    0.6, // Tinggi GridView (50% layar)
+                    0.8, // Tinggi GridView (50% layar)
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent:
-                        ((MediaQuery.of(context).size.width * 0.8) /
+                        ((MediaQuery.of(context).size.width > 800
+                                ? (widget._selectedLevel.id == 1
+                                    ? MediaQuery.of(context).size.width * 0.4
+                                    : MediaQuery.of(context).size.width * 0.7)
+                                : MediaQuery.of(context).size.width * 0.8) /
                             widget._selectedLevel.column),
                     crossAxisSpacing: 4,
                     mainAxisSpacing: 4,
