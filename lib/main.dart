@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       routes: {
   			   'leaderboard': (context) =>const Leaderboard(),
    			},
-      title: 'Flutter Demo',
+      title: 'Match The Card',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 0, 91, 182),

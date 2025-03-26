@@ -9,6 +9,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:ajogame/class/level.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:math';
 
 class GameScreen extends StatefulWidget {
   final String username;
@@ -18,7 +19,7 @@ class GameScreen extends StatefulWidget {
   _GameScreenState createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   final AudioPlayer _backsound = AudioPlayer();
   final AudioPlayer _losesound = AudioPlayer();
   final AudioPlayer _winsound = AudioPlayer();
@@ -40,19 +41,63 @@ class _GameScreenState extends State<GameScreen> {
   late Timer _timer;
   int _score = 0;
 
+  late AnimationController _flipController;
+  late Animation<double> _flipAnimation;
+  late AnimationController _matchController;
+  late Animation<double> _matchAnimation;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // _initializeAnimations();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       startGame();
     });
   }
+
+  // void _initializeAnimations() {
+  //   // Animasi Flip (Rotasi)
+  //   _flipController = AnimationController(
+  //     vsync: this,
+  //     duration: Duration(milliseconds: 1000),
+  //   );
+  //   _flipAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+  //     CurvedAnimation(parent: _flipController, curve: Curves.elasticOut),
+  //   );
+  //   // Animasi Bounce (Efek kepental)
+  //   _matchController = AnimationController(
+  //     vsync: this,
+  //     duration: Duration(milliseconds: 1000),
+  //     lowerBound: 0.8,
+  //     upperBound: 1.2,
+  //   )..addStatusListener((status) {
+  //     if (status == AnimationStatus.completed) {
+  //       _matchController.reverse();
+  //     }
+  //   });
+  //   _matchAnimation = CurvedAnimation(
+  //     parent: _matchController,
+  //     curve: Curves.elasticOut,
+  //   );
+  // }
 
   void startGame() {
     _countdown = _selectedLevel.time;
     _time = _selectedLevel.time;
     cards = [];
     cards = generateCards(_selectedLevel);
+
+    // Inisialisasi animasi untuk setiap kartu
+    for (var card in cards) {
+      card.flipController = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 500),
+      );
+      card.flipAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: card.flipController, curve: Curves.easeInOut),
+      );
+    }
+
     startTimer();
     _playBackgroundMusic();
   }
@@ -71,41 +116,43 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> updateLeaderboard(String username, int score) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  // Ambil leaderboard dari SharedPreferences
-  String? leaderboardString = prefs.getString('leaderboard');
-  List<dynamic> leaderboard = leaderboardString != null ? jsonDecode(leaderboardString) : [];
+    // Ambil leaderboard dari SharedPreferences
+    String? leaderboardString = prefs.getString('leaderboard');
+    List<dynamic> leaderboard =
+        leaderboardString != null ? jsonDecode(leaderboardString) : [];
 
-  // Cek apakah user sudah ada di leaderboard
-  bool userExists = false;
-  for (var entry in leaderboard) {
-    if (entry['username'] == username) {
-      if (score > entry['score']) {
-        entry['score'] = score; // Update kalau lebih tinggi
+    // Cek apakah user sudah ada di leaderboard
+    bool userExists = false;
+    for (var entry in leaderboard) {
+      if (entry['username'] == username) {
+        if (score > entry['score']) {
+          entry['score'] = score; // Update kalau lebih tinggi
+        }
+        userExists = true;
+        break;
       }
-      userExists = true;
-      break;
     }
+
+    // Kalau user belum ada, tambahkan
+    if (!userExists) {
+      leaderboard.add({"username": username, "score": score});
+    }
+
+    // Urutkan berdasarkan skor (descending)
+    leaderboard.sort((a, b) => b['score'].compareTo(a['score']));
+
+    // Simpan hanya 3 skor tertinggi
+    if (leaderboard.length > 3) {
+      leaderboard = leaderboard.sublist(0, 3);
+    }
+
+    // Simpan kembali ke SharedPreferences
+    await prefs.setString('leaderboard', jsonEncode(leaderboard));
   }
 
-  // Kalau user belum ada, tambahkan
-  if (!userExists) {
-    leaderboard.add({"username": username, "score": score});
-  }
-
-  // Urutkan berdasarkan skor (descending)
-  leaderboard.sort((a, b) => b['score'].compareTo(a['score']));
-
-  // Simpan hanya 3 skor tertinggi
-  if (leaderboard.length > 3) {
-    leaderboard = leaderboard.sublist(0, 3);
-  }
-
-  // Simpan kembali ke SharedPreferences
-  await prefs.setString('leaderboard', jsonEncode(leaderboard));
-}
-
+  // Soundeffect
   void _playBackgroundMusic() async {
     await _backsound.stop();
     await _backsound.play(
@@ -148,11 +195,17 @@ class _GameScreenState extends State<GameScreen> {
       barrierDismissible: false,
       builder:
           (BuildContext context) => AlertDialog(
-            title: Text('Quiz'),
+            title: Text(
+              win ? "YOU WIN!!" : "GAMEOVER!!",
+              textAlign: TextAlign.center,
+            ),
+
             content: Text(
               win
                   ? "Congrats You Win \nYour Total Score: $_score"
                   : "You Lose \nYour Score: $_score",
+              textAlign: TextAlign.center,
+
             ),
             actions: <Widget>[
               TextButton(
@@ -193,6 +246,7 @@ class _GameScreenState extends State<GameScreen> {
       _playLoseMusic();
     }
   }
+  //
 
   void retry() async {
     _losesound.stop();
@@ -206,6 +260,7 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       cards[index].isFlipped = true;
       _playFlipSound();
+      cards[index].flipController.forward(from: 0.0);
     });
 
     if (firstCard == null) {
@@ -230,6 +285,8 @@ class _GameScreenState extends State<GameScreen> {
           setState(() {
             firstCard!.isFlipped = false;
             secondCard!.isFlipped = false;
+            firstCard!.flipController.reverse();
+            secondCard!.flipController.reverse();
             firstCard = null;
             secondCard = null;
             isProcessing = false;
@@ -282,18 +339,28 @@ class _GameScreenState extends State<GameScreen> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () => onCardTap(index),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          image: DecorationImage(
-                            image: AssetImage(
-                              cards[index].isFlipped
-                                  ? cards[index].imagePath
-                                  : 'assets/0.jpg',
+                      child: AnimatedBuilder(
+                        animation: cards[index].flipAnimation,
+                        builder: (context, child) {
+                          return Transform(
+                            transform: Matrix4.rotationY(
+                              cards[index].flipAnimation.value * 3.1416,
                             ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                            alignment: Alignment.center,
+                            child:
+                                cards[index].flipAnimation.value <= 0.5
+                                    ? Image.asset(
+                                      'assets/0.jpg',
+                                    ) // Tampilan belakang kartu
+                                    : Transform.scale(
+                                      scaleX:
+                                          -1, // Membalik hanya sumbu X agar tidak mirror
+                                      child: Image.asset(
+                                        cards[index].imagePath,
+                                      ),
+                                    ), // Tampilan depan kartu
+                          );
+                        },
                       ),
                     );
                   },

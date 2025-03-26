@@ -1,9 +1,12 @@
 import 'package:ajogame/class/level.dart';
+import 'package:flutter/material.dart';
 
 class GameCard {
   String imagePath;
   bool isFlipped;
   bool isMatched;
+  late AnimationController flipController;
+  late Animation<double> flipAnimation;
 
   GameCard({
     required this.imagePath,
@@ -26,9 +29,9 @@ List<GameCard> generateCards(Level level) {
   List<GameCard> cards = [];
 
   // Duplikasi kartu biar ada pasangan
-  for (var i=1; i<=level.cardSet; i++) {
-    cards.add(GameCard(imagePath: images[i-1]));
-    cards.add(GameCard(imagePath: images[i-1]));
+  for (var i = 1; i <= level.cardSet; i++) {
+    cards.add(GameCard(imagePath: images[i - 1]));
+    cards.add(GameCard(imagePath: images[i - 1]));
   }
 
   // Shuffle kartu biar acak
