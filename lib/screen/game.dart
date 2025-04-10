@@ -152,7 +152,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     await prefs.setString('leaderboard', jsonEncode(leaderboard));
   }
 
-  // Soundeffect
+
   void _playBackgroundMusic() async {
     await _backsound.stop();
     await _backsound.play(
