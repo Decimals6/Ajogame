@@ -15,14 +15,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {
-  			   'leaderboard': (context) =>const Leaderboard(),
-   			},
+      routes: {'leaderboard': (context) => const Leaderboard()},
       title: 'Match The Card',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 0, 91, 182),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1F3A93), // Steel Blue
+          foregroundColor: Colors.white, // teks dan icon tetap kebaca
+          elevation: 0,
         ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFF1F3A93),
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
       ),
       home: const MyHomePage(title: 'AJOGAME - Match The Card'),
     );
@@ -40,7 +45,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String? _username;
   int _currentIndex = 0;
-  final List<Widget> _screens = [Home(),];
+  final List<Widget> _screens = [Home()];
 
   @override
   void initState() {
@@ -51,14 +56,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username = prefs.getString(
-        'username',
-      );
+      _username = prefs.getString('username');
       if (_username == null) {
         Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
-      );
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
       } // Ambil username dari shared prefs
     });
   }
@@ -71,7 +74,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       drawer: myDrawer(),
-      body: (_username == null || _username!.isEmpty) ? const Login() : _screens[_currentIndex],
+      body:
+          (_username == null || _username!.isEmpty)
+              ? const Login()
+              : _screens[_currentIndex],
     );
   }
 
@@ -81,23 +87,45 @@ class _MyHomePageState extends State<MyHomePage> {
       elevation: 16.0,
       child: Column(
         children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: Text(_username ?? ''),
-            accountEmail: Text("xyz@gmail.com"),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage("https://i.pravatar.cc/150"),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(top: 40, bottom: 20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF3a6186), Color(0xFF89253e)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: AssetImage('assets/0.jpg'),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  _username ?? '',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
             ),
           ),
           ListTile(
+            leading: const Icon(Icons.leaderboard, color: Colors.blueAccent),
             title: const Text("Leaderboard"),
-            leading: const Icon(Icons.person),
             onTap: () {
               Navigator.pushNamed(context, 'leaderboard');
             },
           ),
           ListTile(
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
             title: const Text("Logout"),
-            leading: const Icon(Icons.person),
             onTap: () {
               _logout();
             },

@@ -152,7 +152,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     await prefs.setString('leaderboard', jsonEncode(leaderboard));
   }
 
-
   void _playBackgroundMusic() async {
     await _backsound.stop();
     await _backsound.play(
@@ -205,7 +204,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   ? "Congrats You Win \nYour Total Score: $_score"
                   : "You Lose \nYour Score: $_score",
               textAlign: TextAlign.center,
-
             ),
             actions: <Widget>[
               TextButton(
@@ -299,75 +297,86 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: <Widget>[
-            LinearPercentIndicator(
-              percent: _countdown / _time,
-              progressColor: Colors.green,
-              lineHeight: 20,
-            ),
-            Text("time left: $_countdown"),
-            SizedBox(height: 10), // Tambahkan sedikit jarak
-            Center(
-              child: SizedBox(
-                width:
-                    MediaQuery.of(context).size.width > 800
-                        ? (_selectedLevel.id == 1
-                            ? MediaQuery.of(context).size.width * 0.4
-                            : MediaQuery.of(context).size.width * 0.7)
-                        : MediaQuery.of(context).size.width *
-                            0.8, // Lebar GridView (80% layar)
-                height:
-                    MediaQuery.of(context).size.height *
-                    0.8, // Tinggi GridView (50% layar)
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent:
-                        ((MediaQuery.of(context).size.width > 800
-                                ? (_selectedLevel.id == 1
-                                    ? MediaQuery.of(context).size.width * 0.4
-                                    : MediaQuery.of(context).size.width * 0.7)
-                                : MediaQuery.of(context).size.width * 0.8) /
-                            _selectedLevel.column),
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                    childAspectRatio: 1, // Biar tetap kotak
-                  ),
-                  itemCount: cards.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () => onCardTap(index),
-                      child: AnimatedBuilder(
-                        animation: cards[index].flipAnimation,
-                        builder: (context, child) {
-                          return Transform(
-                            transform: Matrix4.rotationY(
-                              cards[index].flipAnimation.value * 3.1416,
-                            ),
-                            alignment: Alignment.center,
-                            child:
-                                cards[index].flipAnimation.value <= 0.5
-                                    ? Image.asset(
-                                      'assets/0.jpg',
-                                    ) // Tampilan belakang kartu
-                                    : Transform.scale(
-                                      scaleX:
-                                          -1, // Membalik hanya sumbu X agar tidak mirror
-                                      child: Image.asset(
-                                        cards[index].imagePath,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A1A2E), // warna gelap
+              Color(0xFF16213E), // warna sedikit lebih terang
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: <Widget>[
+              LinearPercentIndicator(
+                percent: _countdown / _time,
+                progressColor: Colors.green,
+                lineHeight: 20,
+                backgroundColor: Colors.grey.shade800,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Time left: $_countdown",
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: SizedBox(
+                  width:
+                      MediaQuery.of(context).size.width > 800
+                          ? (_selectedLevel.id == 1
+                              ? MediaQuery.of(context).size.width * 0.4
+                              : MediaQuery.of(context).size.width * 0.7)
+                          : MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent:
+                          ((MediaQuery.of(context).size.width > 800
+                                  ? (_selectedLevel.id == 1
+                                      ? MediaQuery.of(context).size.width * 0.4
+                                      : MediaQuery.of(context).size.width * 0.7)
+                                  : MediaQuery.of(context).size.width * 0.8) /
+                              _selectedLevel.column),
+                      crossAxisSpacing: 4,
+                      mainAxisSpacing: 4,
+                      childAspectRatio: 1,
+                    ),
+                    itemCount: cards.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () => onCardTap(index),
+                        child: AnimatedBuilder(
+                          animation: cards[index].flipAnimation,
+                          builder: (context, child) {
+                            return Transform(
+                              transform: Matrix4.rotationY(
+                                cards[index].flipAnimation.value * 3.1416,
+                              ),
+                              alignment: Alignment.center,
+                              child:
+                                  cards[index].flipAnimation.value <= 0.5
+                                      ? Image.asset('assets/0.jpg')
+                                      : Transform.scale(
+                                        scaleX: -1,
+                                        child: Image.asset(
+                                          cards[index].imagePath,
+                                        ),
                                       ),
-                                    ), // Tampilan depan kartu
-                          );
-                        },
-                      ),
-                    );
-                  },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
