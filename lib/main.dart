@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {'leaderboard': (context) => const Leaderboard()},
-      title: 'Match The Card',
+      routes: {'leaderboard': (context) => Leaderboard()},
+      title: 'Imatching | AJOJING',
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1F3A93), // Steel Blue
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'AJOGAME - Match The Card'),
+      home: const MyHomePage(title: 'Imatching - Match The Card'),
     );
   }
 }
@@ -44,8 +44,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String? _username;
-  int _currentIndex = 0;
-  final List<Widget> _screens = [Home()];
+  // int _currentIndex = 0;
+  // final List<Widget> _screens = [Home()]; // gaperlu ini karna gapake botnav
 
   @override
   void initState() {
@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
           context,
           MaterialPageRoute(builder: (context) => Login()),
         );
-      } // Ambil username dari shared prefs
+      }
     });
   }
 
@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body:
           (_username == null || _username!.isEmpty)
               ? const Login()
-              : _screens[_currentIndex],
+              : Home(),
     );
   }
 
@@ -139,50 +139,9 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('username');
 
-    // Pindah ke LoginScreen setelah logout
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => Login()),
-    );
-  }
-
-  void _incrementCounter() {
-    setState(() {});
-  }
-
-  FloatingActionButton floatbut() {
-    return FloatingActionButton(
-      onPressed: _incrementCounter,
-      tooltip: 'Increment',
-      child: const Icon(Icons.add),
-    );
-  }
-
-  Center Default(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text('You have pushed the button this many times:'),
-          Text('', style: Theme.of(context).textTheme.headlineMedium),
-        ],
-      ),
-    );
-  }
-
-  BottomNavigationBar bottomNav() {
-    return BottomNavigationBar(
-      currentIndex: _currentIndex,
-      fixedColor: const Color.fromARGB(255, 255, 5, 243),
-      items: const [
-        BottomNavigationBarItem(label: "Home", icon: Icon(Icons.home)),
-        BottomNavigationBarItem(label: "Game", icon: Icon(Icons.gamepad)),
-      ],
-      onTap: (int index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
     );
   }
 }

@@ -25,7 +25,7 @@ class _LoginState extends State<Login> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => MyHomePage(title: "AJOGAME - Match The Car"),
+          builder: (context) => MyHomePage(title: "Imatching - Match The Card"),
         ),
       );
     }
@@ -58,7 +58,7 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Masuk ke AJOGAME',
+                'Login ke Game',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

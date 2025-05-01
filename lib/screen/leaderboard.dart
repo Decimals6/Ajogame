@@ -55,15 +55,13 @@ class _LeaderboardState extends State<Leaderboard> {
       if (index < leaderboard.length) {
         return leaderboard[index];
       } else {
-        return {
-          'username': 'No Result',
-          'score': 0,
-        };
+        return {'username': 'No Result', 'score': 0};
       }
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Leaderboard')),
+      appBar: AppBar(title: Text('Leaderboard')),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -89,22 +87,25 @@ class _LeaderboardState extends State<Leaderboard> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: leaderboard.isEmpty
-                  ? const Center(child: Text('Belum ada data leaderboard'))
-                  : ListView.builder(
-                      itemCount: leaderboard.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: ListTile(
-                            leading: Text('#${index + 1}'),
-                            title: Text(leaderboard[index]['username'] ?? 'Unknown'),
-                            trailing: Text(
-                              leaderboard[index]['score']?.toString() ?? '0',
+              child:
+                  leaderboard.isEmpty
+                      ? const Center(child: Text('Belum ada data leaderboard'))
+                      : ListView.builder(
+                        itemCount: leaderboard.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: ListTile(
+                              leading: Text('#${index + 1}'),
+                              title: Text(
+                                leaderboard[index]['username'] ?? 'Unknown',
+                              ),
+                              trailing: Text(
+                                leaderboard[index]['score']?.toString() ?? '0',
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
             ),
             ElevatedButton(
               onPressed: () {

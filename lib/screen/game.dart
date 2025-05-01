@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:ajogame/main.dart';
 import 'package:ajogame/screen/home.dart';
+import 'package:ajogame/screen/leaderboard.dart';
 import 'package:flutter/material.dart';
 import 'package:ajogame/class/gameCard.dart';
 import 'dart:async';
@@ -41,45 +42,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late Timer _timer;
   int _score = 0;
 
-  late AnimationController _flipController;
-  late Animation<double> _flipAnimation;
-  late AnimationController _matchController;
-  late Animation<double> _matchAnimation;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // _initializeAnimations();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       startGame();
     });
   }
-
-  // void _initializeAnimations() {
-  //   // Animasi Flip (Rotasi)
-  //   _flipController = AnimationController(
-  //     vsync: this,
-  //     duration: Duration(milliseconds: 1000),
-  //   );
-  //   _flipAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-  //     CurvedAnimation(parent: _flipController, curve: Curves.elasticOut),
-  //   );
-  //   // Animasi Bounce (Efek kepental)
-  //   _matchController = AnimationController(
-  //     vsync: this,
-  //     duration: Duration(milliseconds: 1000),
-  //     lowerBound: 0.8,
-  //     upperBound: 1.2,
-  //   )..addStatusListener((status) {
-  //     if (status == AnimationStatus.completed) {
-  //       _matchController.reverse();
-  //     }
-  //   });
-  //   _matchAnimation = CurvedAnimation(
-  //     parent: _matchController,
-  //     curve: Curves.elasticOut,
-  //   );
-  // }
 
   void startGame() {
     _countdown = _selectedLevel.time;
@@ -113,6 +82,33 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         }
       });
     });
+  }
+
+  void _playBackgroundMusic() async {
+    await _backsound.stop();
+    await _backsound.play(
+      AssetSource(_selectedLevel.id.toString() + '.mp3'),
+      volume: 0.5,
+    );
+  }
+
+  void _playFlipSound() async {
+    await _effectSound.stop();
+    await _effectSound.play(AssetSource('flip.mp3'), volume: 0.5);
+  }
+
+  void _playWinMusic() async {
+    await _winsound.stop();
+    await _winsound.play(AssetSource('WinTest.mp3'), volume: 0.5);
+  }
+
+  void _playLoseMusic() async {
+    try {
+      await _losesound.stop();
+      await _losesound.play(AssetSource('LoseTest.mp3'), volume: 0.5);
+    } catch (e) {
+      print("Error: $e"); // Lihat error yang lebih spesifik
+    }
   }
 
   Future<void> updateLeaderboard(String username, int score) async {
@@ -152,33 +148,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     await prefs.setString('leaderboard', jsonEncode(leaderboard));
   }
 
-  void _playBackgroundMusic() async {
-    await _backsound.stop();
-    await _backsound.play(
-      AssetSource(_selectedLevel.id.toString() + '.mp3'),
-      volume: 0.5,
-    );
-  }
-
-  void _playFlipSound() async {
-    await _effectSound.stop();
-    await _effectSound.play(AssetSource('flip.mp3'), volume: 0.5);
-  }
-
-  void _playWinMusic() async {
-    await _winsound.stop();
-    await _winsound.play(AssetSource('WinTest.mp3'), volume: 0.5);
-  }
-
-  void _playLoseMusic() async {
-    try {
-      await _losesound.stop();
-      await _losesound.play(AssetSource('LoseTest.mp3'), volume: 0.5);
-    } catch (e) {
-      print("Error: $e"); // Lihat error yang lebih spesifik
-    }
-  }
-
   void endgame() {
     _timer.cancel();
     _score = _score + (cardFinished * _countdown);
@@ -214,7 +183,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     MaterialPageRoute(
                       builder:
                           (context) =>
-                              MyHomePage(title: "AJOGAME - Match The Card"),
+                              MyHomePage(title: "Imatching - Match The Card"),
                     ),
                   );
                 },
@@ -235,6 +204,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   },
                   child: Text(win ? 'Next Level' : 'Try Again'),
                 ),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => Leaderboard()),
+                  );
+                },
+                child: Text('High Score'),
+              ),
             ],
           ),
     );
@@ -244,7 +223,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       _playLoseMusic();
     }
   }
-  //
 
   void retry() async {
     _losesound.stop();
