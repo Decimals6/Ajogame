@@ -59,7 +59,6 @@ class _HomeState extends State<Home> {
                 size: 80,
                 color: Colors.white,
               ),
-              const SizedBox(height: 16),
               Text(
                 'Selamat Datang, $_username!',
                 style: const TextStyle(
@@ -75,6 +74,9 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              Container(child: Image.asset('tutorial.jpg'),
+              height: 300,),
               const SizedBox(height: 12),
               const Text(
                 'Siap untuk bermain?',
